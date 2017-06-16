@@ -58,6 +58,7 @@ int currentHour = 0, currentMin = 0;
 int startHour = 1, startMin = 1;
 int stopHour = 1, stopMin = 1;
 boolean AC_ON = false;
+int Button = 0;  //V4
 
 IRsend irsend(IRLED);  // an IR led is connected to the IRLED gpio
 
@@ -77,6 +78,11 @@ BLYNK_WRITE(V1) {
   stopMin = t.getStartMinute();
   stopTime = String(t.getStartHour()) + ":" + String(t.getStartMinute());
   Serial.println(String("Stop time: ") + stopTime);
+}
+
+//Function that reads Start/stop button V4
+BLYNK_WRITE(V4) {
+  Button = param.asInt();
 }
 
 // Digital clock display of the time
@@ -144,14 +150,14 @@ void loop() {
   timer.run();
 
   //Checks if it's time to turn on or off the AC
-  if (startHour == currentHour && startMin == currentMin && AC_ON == false) {
+  if ((startHour == currentHour && startMin == currentMin)||(Button) && AC_ON == false) {
     digitalWrite(GPIO_LED, HIGH);
     led1.on();
     sendIR(); //sends IR start/stop command
     Serial.println("IR command sent");
     AC_ON = true;
   }
-  else if (stopHour == currentHour && stopMin == currentMin && AC_ON == true) {
+  else if ((stopHour == currentHour && stopMin == currentMin)||(Button) && AC_ON == true) {
     digitalWrite(GPIO_LED, LOW);
     led1.off();
     sendIR(); //sends IR start/stop command

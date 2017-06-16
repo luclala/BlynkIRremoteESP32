@@ -30,6 +30,10 @@
 #include <TimeLib.h>
 #include <WidgetRTC.h>
 #include "src/IRsend.h"
+#include "auth.h" //this file contains auth, ssid and pass
+//char auth[] = "1234567890" //Blynk Auth Token;
+//char ssid[] = "WiFi SSID";
+//char pass[] = "password";
 
 
 #define ONEMARK 400    //Nr. of usecs for the led to be pulsed for a '1' bit.
@@ -40,14 +44,6 @@
 #define BLYNK_PRINT   Serial
 #define GPIO_LED      GPIO_NUM_27 /*LED output pin 27 */
 
-// You should get Auth Token in the Blynk App.
-// Go to the Project Settings (nut icon).
-char auth[] = "8162e03d9a8a47aba8d38af3c2453302";
-
-// Your WiFi credentials.
-// Set password to "" for open networks.
-char ssid[] = "Poutineville";
-char pass[] = "poutinesquicksquick";
 
 BlynkTimer timer;
 WidgetRTC rtc;

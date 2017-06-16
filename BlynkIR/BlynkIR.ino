@@ -105,7 +105,7 @@ void clockDisplay()
 
 void sendIR()
 {
-  irsend.enableIROut(38000, 45);
+  irsend.enableIROut(38000, 45); //frequency, duty cycle
   //send header
   irsend.mark(3200);
   irsend.space(1600);
@@ -146,14 +146,14 @@ void loop() {
   timer.run();
 
   //Checks if it's time to turn on or off the AC
-  if ((startHour == currentHour && startMin == currentMin)||(Button) && AC_ON == false) {
+  if (((startHour == currentHour && startMin == currentMin)||(Button)) && AC_ON == false) {
     digitalWrite(GPIO_LED, HIGH);
     led1.on();
     sendIR(); //sends IR start/stop command
     Serial.println("IR command sent");
     AC_ON = true;
   }
-  else if ((stopHour == currentHour && stopMin == currentMin)||(Button) && AC_ON == true) {
+  else if (((stopHour == currentHour && stopMin == currentMin)||(Button)) && AC_ON == true) {
     digitalWrite(GPIO_LED, LOW);
     led1.off();
     sendIR(); //sends IR start/stop command

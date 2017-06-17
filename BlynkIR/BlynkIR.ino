@@ -35,28 +35,33 @@
 //char ssid[] = "WiFi SSID";
 //char pass[] = "password";
 
-
+//IR protocol constants
 #define ONEMARK 400    //Nr. of usecs for the led to be pulsed for a '1' bit.
 #define ONESPACE 400   //Nr. of usecs for the led to be fully off for a '1' bit.
 #define ZEROMARK 400   //Nr. of usecs for the led to be pulsed for a '0' bit.
 #define ZEROSPACE 1200 //Nr. of usecs for the led to be fully off for a '0' bit.
-#define IRLED 26
+//#define IRFREQ   38000 //Carrier frequency
+int IRFREQ = 37000;
+#define IRDUTY   45   //Duty cycle %
+#define IRLED 26      //Output connected to IR LED
 #define BLYNK_PRINT   Serial
-#define GPIO_LED      GPIO_NUM_27 /*LED output pin 27 */
-
+#define GPIO_LED      GPIO_NUM_27 //status LED, GPIO 27
+#define RESET       1111 //start and stop time value when not active, 
+                          //has to be different than 0 and not more than 24
 
 BlynkTimer timer;
 WidgetRTC rtc;
-WidgetLED led1(V2);
+WidgetLED led1(V2); //on/off indicator on Blynk app
+IRsend irsend(IRLED);  //irsend object
 
 String startTime, stopTime;
 int currentHour = 0, currentMin = 0;
-int startHour = 1, startMin = 1;
-int stopHour = 1, stopMin = 1;
+int startHour = RESET, startMin = RESET;
+int stopHour = RESET, stopMin = RESET;
 boolean AC_ON = false;
 int Button = 0;  //V4
 
-IRsend irsend(IRLED);  // an IR led is connected to the IRLED gpio
+
 
 //Function that gets start time from Blynk app
 BLYNK_WRITE(V0) {
@@ -79,6 +84,10 @@ BLYNK_WRITE(V1) {
 //Function that reads Start/stop button V4
 BLYNK_WRITE(V4) {
   Button = param.asInt();
+}
+
+BLYNK_WRITE(V5) {
+  IRFREQ = param.asInt()*10;
 }
 
 // Digital clock display of the time
@@ -105,7 +114,7 @@ void clockDisplay()
 
 void sendIR()
 {
-  irsend.enableIROut(38000, 45); //frequency, duty cycle
+  irsend.enableIROut(IRFREQ, IRDUTY); //frequency, duty cycle
   //send header
   irsend.mark(3200);
   irsend.space(1600);
@@ -148,17 +157,21 @@ void loop() {
   //Checks if it's time to turn on or off the AC
   if (((startHour == currentHour && startMin == currentMin)||(Button)) && AC_ON == false) {
     digitalWrite(GPIO_LED, HIGH);
+    startHour = RESET; startMin = RESET;
     led1.on();
-    sendIR(); //sends IR start/stop command
+    sendIR(); //sendIR();//sends IR start/stop command
     Serial.println("IR command sent");
     AC_ON = true;
+    delay(200);
   }
   else if (((stopHour == currentHour && stopMin == currentMin)||(Button)) && AC_ON == true) {
     digitalWrite(GPIO_LED, LOW);
+    stopHour = RESET; stopMin = RESET;
     led1.off();
-    sendIR(); //sends IR start/stop command
+    sendIR(); //sendIR();//sends IR start/stop command
     Serial.println("IR command sent");
     AC_ON = false;
+    delay(200);
   }
 
 
